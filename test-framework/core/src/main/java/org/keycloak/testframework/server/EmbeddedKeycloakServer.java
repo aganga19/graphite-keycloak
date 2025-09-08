@@ -6,8 +6,10 @@ import org.keycloak.common.Version;
 import org.keycloak.platform.Platform;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
@@ -15,10 +17,12 @@ public class EmbeddedKeycloakServer implements KeycloakServer {
 
     private Keycloak keycloak;
     private Path homeDir;
+    private boolean enableTls = false;
 
     @Override
     public void start(KeycloakServerConfigBuilder keycloakServerConfigBuilder) {
         Keycloak.Builder builder = Keycloak.builder().setVersion(Version.VERSION);
+        enableTls = keycloakServerConfigBuilder.tlsEnabled();
 
         for(Dependency dependency : keycloakServerConfigBuilder.toDependencies()) {
             builder.addDependency(dependency.getGroupId(), dependency.getArtifactId(), "");
@@ -47,7 +51,13 @@ public class EmbeddedKeycloakServer implements KeycloakServer {
         }
 
         builder.setHomeDir(homeDir);
-        keycloak = builder.start(keycloakServerConfigBuilder.toArgs());
+        List<String> args = keycloakServerConfigBuilder.toArgs();
+        if (enableTls) {
+            try {
+                args.add("--https-key-store-file=" + Path.of(getClass().getResource("/server.keystore").toURI()));
+            } catch (URISyntaxException ignored) {}
+        }
+        keycloak = builder.start(args);
     }
 
     @Override
@@ -61,11 +71,19 @@ public class EmbeddedKeycloakServer implements KeycloakServer {
 
     @Override
     public String getBaseUrl() {
-        return "http://localhost:8080";
+        if (!enableTls) {
+            return "http://localhost:8080";
+        } else {
+            return "https://localhost:8443";
+        }
     }
 
     @Override
     public String getManagementBaseUrl() {
-        return "http://localhost:9001";
+        if (!enableTls) {
+            return "http://localhost:9001";
+        } else {
+            return "https://localhost:9001";
+        }
     }
 }
