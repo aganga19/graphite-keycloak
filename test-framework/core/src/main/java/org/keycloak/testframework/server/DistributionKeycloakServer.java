@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class DistributionKeycloakServer implements KeycloakServer {
 
     private static final boolean MANUAL_STOP = true;
-    private static boolean enableTls = false;
+    private boolean enableTls = false;
     private static final boolean RE_CREATE = false;
     private static final boolean REMOVE_BUILD_OPTIONS_AFTER_BUILD = false;
     private static final int REQUEST_PORT = 8080;
@@ -56,20 +56,25 @@ public class DistributionKeycloakServer implements KeycloakServer {
 
     @Override
     public String getBaseUrl() {
-        if (!enableTls) {
-            return "http://localhost:8080";
-        } else {
+        if (isTlsEnabled()) {
             return "https://localhost:8443";
+        } else {
+            return "http://localhost:8080";
         }
     }
 
     @Override
     public String getManagementBaseUrl() {
-        if (!enableTls) {
-            return "http://localhost:9000";
-        } else {
+        if (isTlsEnabled()) {
             return "https://localhost:9000";
+        } else {
+            return "http://localhost:9000";
         }
+    }
+
+    @Override
+    public boolean isTlsEnabled() {
+        return enableTls;
     }
 
     private static final class LoggingOutputConsumer implements OutputConsumer {

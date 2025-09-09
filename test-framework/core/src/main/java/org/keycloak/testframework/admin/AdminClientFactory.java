@@ -1,5 +1,6 @@
 package org.keycloak.testframework.admin;
 
+import jakarta.ws.rs.client.Client;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 
@@ -13,8 +14,13 @@ public class AdminClientFactory {
 
     private final List<Keycloak> instanceToClose = new LinkedList<>();
 
-    AdminClientFactory(String serverUrl) {
-        delegateSupplier = () -> KeycloakBuilder.builder().serverUrl(serverUrl);
+    AdminClientFactory(String serverUrl, boolean tlsEnabled) {
+        if (tlsEnabled) {
+            Client restEasyClient = Keycloak.getClientProvider().newRestEasyClient(null, null, true);
+            delegateSupplier = () -> KeycloakBuilder.builder().serverUrl(serverUrl).resteasyClient(restEasyClient);
+        } else {
+            delegateSupplier = () -> KeycloakBuilder.builder().serverUrl(serverUrl);
+        }
     }
 
     public AdminClientBuilder create() {

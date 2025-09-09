@@ -71,19 +71,24 @@ public class EmbeddedKeycloakServer implements KeycloakServer {
 
     @Override
     public String getBaseUrl() {
-        if (!enableTls) {
-            return "http://localhost:8080";
-        } else {
+        if (isTlsEnabled()) {
             return "https://localhost:8443";
+        } else {
+            return "http://localhost:8080";
         }
     }
 
     @Override
     public String getManagementBaseUrl() {
-        if (!enableTls) {
-            return "http://localhost:9001";
-        } else {
+        if (isTlsEnabled()) {
             return "https://localhost:9001";
+        } else {
+            return "http://localhost:9001";
         }
+    }
+
+    @Override
+    public boolean isTlsEnabled() {
+        return enableTls;
     }
 }
