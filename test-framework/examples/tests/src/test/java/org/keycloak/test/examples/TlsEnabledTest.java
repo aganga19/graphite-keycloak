@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.keycloak.testframework.annotations.InjectHttpClient;
 import org.keycloak.testframework.annotations.KeycloakIntegrationTest;
+import org.keycloak.testframework.https.InjectTls;
+import org.keycloak.testframework.https.ManagedTls;
 import org.keycloak.testframework.oauth.OAuthClient;
 import org.keycloak.testframework.oauth.annotations.InjectOAuthClient;
 import org.keycloak.testframework.server.KeycloakServerConfig;
@@ -22,6 +24,15 @@ public class TlsEnabledTest {
 
     @InjectOAuthClient
     OAuthClient oAuthClient;
+
+    @InjectTls
+    ManagedTls managedTls;
+
+    @Test
+    public void testCertSupplier() {
+        Assertions.assertNotNull(managedTls);
+        Assertions.assertEquals("/server.keystore", managedTls.getKeyStore());
+    }
 
     @Test
     public void testHttpClient() {

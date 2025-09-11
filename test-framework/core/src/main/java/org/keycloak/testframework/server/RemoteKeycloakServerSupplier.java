@@ -7,7 +7,7 @@ public class RemoteKeycloakServerSupplier extends AbstractKeycloakServerSupplier
     private static final Logger LOGGER = Logger.getLogger(RemoteKeycloakServerSupplier.class);
 
     @Override
-    public KeycloakServer getServer() {
+    public KeycloakServer getServer(String serverKeyStore) {
         return new RemoteKeycloakServer();
     }
 

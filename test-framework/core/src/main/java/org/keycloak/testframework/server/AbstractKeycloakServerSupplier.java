@@ -4,6 +4,7 @@ import org.jboss.logging.Logger;
 import org.keycloak.testframework.annotations.KeycloakIntegrationTest;
 import org.keycloak.testframework.config.Config;
 import org.keycloak.testframework.database.TestDatabase;
+import org.keycloak.testframework.https.ManagedTls;
 import org.keycloak.testframework.injection.AbstractInterceptorHelper;
 import org.keycloak.testframework.injection.InstanceContext;
 import org.keycloak.testframework.injection.LifeCycle;
@@ -49,9 +50,15 @@ public abstract class AbstractKeycloakServerSupplier implements Supplier<Keycloa
             getLogger().debugv("Startup command and options: \n\t{0}", String.join("\n\t", command.toArgs()));
         }
 
+        String serverKeyStore = null;
+        if (command.tlsEnabled()) {
+            ManagedTls tls = instanceContext.getDependency(ManagedTls.class);
+            serverKeyStore = tls.getKeyStore();
+        }
+
         long start = System.currentTimeMillis();
 
-        KeycloakServer server = getServer();
+        KeycloakServer server = getServer(serverKeyStore);
         server.start(command);
 
         getLogger().infov("Keycloak test server started in {0} ms", System.currentTimeMillis() - start);
@@ -74,7 +81,7 @@ public abstract class AbstractKeycloakServerSupplier implements Supplier<Keycloa
         instanceContext.getValue().stop();
     }
 
-    public abstract KeycloakServer getServer();
+    public abstract KeycloakServer getServer(String serverKeystore);
 
     public abstract boolean requiresDatabase();
 

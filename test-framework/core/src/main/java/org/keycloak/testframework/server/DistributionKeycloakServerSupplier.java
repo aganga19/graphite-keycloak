@@ -11,8 +11,9 @@ public class DistributionKeycloakServerSupplier extends AbstractKeycloakServerSu
     boolean debug = false;
 
     @Override
-    public KeycloakServer getServer() {
-        return new DistributionKeycloakServer(debug);
+    public KeycloakServer getServer(String serverKeyStore) {
+        // todo
+        return new DistributionKeycloakServer(debug, serverKeyStore);
     }
 
     @Override

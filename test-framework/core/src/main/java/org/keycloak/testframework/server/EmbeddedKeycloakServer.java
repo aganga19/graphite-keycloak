@@ -18,6 +18,11 @@ public class EmbeddedKeycloakServer implements KeycloakServer {
     private Keycloak keycloak;
     private Path homeDir;
     private boolean enableTls = false;
+    String serverKeyStore;
+
+    public EmbeddedKeycloakServer(String serverKeystore) {
+        this.serverKeyStore = serverKeystore;
+    }
 
     @Override
     public void start(KeycloakServerConfigBuilder keycloakServerConfigBuilder) {
@@ -54,7 +59,7 @@ public class EmbeddedKeycloakServer implements KeycloakServer {
         List<String> args = keycloakServerConfigBuilder.toArgs();
         if (enableTls) {
             try {
-                args.add("--https-key-store-file=" + Path.of(getClass().getResource("/server.keystore").toURI()));
+                args.add("--https-key-store-file=" + Path.of(getClass().getResource(serverKeyStore).toURI()));
             } catch (URISyntaxException ignored) {}
         }
         keycloak = builder.start(args);
