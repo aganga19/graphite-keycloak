@@ -1,16 +1,21 @@
 package org.keycloak.testframework.https;
 
+import org.keycloak.common.crypto.CryptoProvider;
 import org.keycloak.testframework.injection.InstanceContext;
 import org.keycloak.testframework.injection.LifeCycle;
 import org.keycloak.testframework.injection.RequestedInstance;
 import org.keycloak.testframework.injection.Supplier;
 import org.keycloak.testframework.injection.SupplierOrder;
 
+import java.util.ServiceLoader;
+
 public class TlsSupplier  implements Supplier<ManagedTls, InjectTls> {
 
     @Override
     public ManagedTls getValue(InstanceContext<ManagedTls, InjectTls> instanceContext) {
-        return new ManagedTls();
+        ServiceLoader<CryptoProvider> serviceLoaded = ServiceLoader.load(CryptoProvider.class);
+        CryptoProvider cryptoProvider = serviceLoaded.iterator().next(); // TODO suboptimal
+        return new ManagedTls(cryptoProvider);
     }
 
     @Override
@@ -25,7 +30,7 @@ public class TlsSupplier  implements Supplier<ManagedTls, InjectTls> {
 
     @Override
     public void close(InstanceContext<ManagedTls, InjectTls> instanceContext) {
-        // todo Do I need to let others know the certs are going to die, or is it managed with dependencies?
+        // todo KeyStore is going to be stored somewhere, so it should be deleted
     }
 
     @Override
