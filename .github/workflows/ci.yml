@@ -40,7 +40,7 @@ jobs:
 
       - name: Store Keycloak artifacts
         id: store-keycloak
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: keycloak-artifacts.zip
           retention-days: 1
@@ -92,7 +92,7 @@ jobs:
           test_path: '**/target/surefire-reports/*.xml'
 
       - name: Unit test reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: reports-unit-tests
@@ -136,7 +136,7 @@ jobs:
           fi          
 
       - name: Crypto test reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: reports-crypto-tests
@@ -182,7 +182,7 @@ jobs:
           test_path: 'testsuite/model/target/surefire-reports/*.xml'
 
       - name: Model test reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: reports-model-tests
@@ -266,7 +266,7 @@ jobs:
           test_path: 'testsuite/integration-arquillian/tests/base/target/surefire-reports/*.xml'
 
       - name: Base test reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: reports-${{ matrix.server }}-base-tests-${{ matrix.tests }}
@@ -338,7 +338,7 @@ jobs:
           test_path: 'testsuite/integration-arquillian/tests/base/target/surefire-reports/*.xml'
 
       - name: Base test reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: reports-${{ matrix.server }}-base-tests-${{ matrix.tests }}
@@ -434,7 +434,7 @@ jobs:
           test_path: 'testsuite/integration-arquillian/tests/base/target/surefire-reports/*.xml'
 
       - name: Base test reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: reports-${{ matrix.server }}-base-tests-${{ matrix.tests }}
@@ -494,7 +494,7 @@ jobs:
           test_path: 'testsuite/integration-arquillian/tests/base/target/surefire-reports/*.xml'
 
       - name: Quarkus cluster test reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: reports-quarkus-cluster-tests
@@ -562,7 +562,7 @@ jobs:
           test_path: 'quarkus/tests/integration/target/surefire-reports/*.xml'
 
       - name: Quarkus test reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: reports-quarkus-tests

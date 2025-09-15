@@ -39,7 +39,7 @@ jobs:
           mvn clean install -Pdistribution -DskipTests -DskipExamples -DskipTestsuite
       - name: Store Keycloak distribution
         id: store-keycloak
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: keycloak-distribution
           retention-days: 1
