@@ -12,9 +12,11 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.ModelException;
 import org.keycloak.models.policy.ResourcePolicy;
 import org.keycloak.models.policy.ResourcePolicyManager;
 import org.keycloak.representations.resources.policies.ResourcePolicyRepresentation;
+import org.keycloak.services.ErrorResponse;
 
 class RealmResourcePoliciesResource {
 
@@ -29,15 +31,19 @@ class RealmResourcePoliciesResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(ResourcePolicyRepresentation rep) {
-        ResourcePolicy policy = manager.toModel(rep);
-        return Response.created(session.getContext().getUri().getRequestUriBuilder().path(policy.getId()).build()).build();
+        try {
+            ResourcePolicy policy = manager.toModel(rep);
+            return Response.created(session.getContext().getUri().getRequestUriBuilder().path(policy.getId()).build()).build();
+        } catch (ModelException me) {
+            throw ErrorResponse.error(me.getMessage(), Response.Status.BAD_REQUEST);
+        }
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createAll(List<ResourcePolicyRepresentation> reps) {
         for (ResourcePolicyRepresentation policy : reps) {
-            manager.toModel(policy);
+            create(policy).close();
         }
         return Response.created(session.getContext().getUri().getRequestUri()).build();
     }

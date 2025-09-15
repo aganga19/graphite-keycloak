@@ -12,10 +12,13 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import org.keycloak.models.ModelException;
 import org.keycloak.models.policy.ResourcePolicy;
 import org.keycloak.models.policy.ResourcePolicyManager;
 import org.keycloak.models.policy.ResourceType;
 import org.keycloak.representations.resources.policies.ResourcePolicyRepresentation;
+import org.keycloak.services.ErrorResponse;
 
 class RealmResourcePolicyResource {
 
@@ -28,13 +31,21 @@ class RealmResourcePolicyResource {
     }
 
     @DELETE
-    public void delete(String id) {
-        manager.removePolicy(policy.getId());
+    public void delete() {
+        try {
+            manager.removePolicy(policy.getId());
+        } catch (ModelException me) {
+            throw ErrorResponse.error(me.getMessage(), Response.Status.BAD_REQUEST);
+        }
     }
 
     @PUT
     public void update(ResourcePolicyRepresentation rep) {
-        manager.updatePolicy(policy, rep.getConfig());
+        try {
+            manager.updatePolicy(policy, rep.getConfig());
+        } catch (ModelException me) {
+            throw ErrorResponse.error(me.getMessage(), Response.Status.BAD_REQUEST);
+        }
     }
 
     @GET

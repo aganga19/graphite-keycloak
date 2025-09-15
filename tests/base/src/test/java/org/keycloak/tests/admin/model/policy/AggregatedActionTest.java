@@ -1,6 +1,7 @@
 package org.keycloak.tests.admin.model.policy;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -12,6 +13,8 @@ import java.time.Duration;
 import java.util.List;
 import java.util.function.Consumer;
 
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import org.junit.jupiter.api.Test;
 import org.keycloak.common.util.Time;
 import org.keycloak.models.KeycloakSession;
@@ -23,6 +26,7 @@ import org.keycloak.models.policy.ResourcePolicyManager;
 import org.keycloak.models.policy.SetUserAttributeActionProviderFactory;
 import org.keycloak.models.policy.UserCreationTimeResourcePolicyProviderFactory;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.ErrorRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.representations.resources.policies.ResourcePolicyActionRepresentation;
 import org.keycloak.representations.resources.policies.ResourcePolicyRepresentation;
@@ -80,6 +84,28 @@ public class AggregatedActionTest {
             assertThat(a.getConfig().isEmpty(), is(false));
             assertThat(a.getConfig(), hasEntry("priority", List.of("2")));
         });
+    }
+
+    @Test
+    public void testFailCreateIfSettingActionsToRegularActions() {
+        try (Response response = managedRealm.admin().resources().policies().create(ResourcePolicyRepresentation.create()
+                .of(UserCreationTimeResourcePolicyProviderFactory.ID)
+                .withActions(
+                        ResourcePolicyActionRepresentation.create().of(SetUserAttributeActionProviderFactory.ID)
+                                .after(Duration.ofDays(5))
+                                .withConfig("key", "value")
+                                .withActions(ResourcePolicyActionRepresentation.create()
+                                                .of(SetUserAttributeActionProviderFactory.ID)
+                                                .withConfig("message", "message")
+                                                .build(),
+                                        ResourcePolicyActionRepresentation.create()
+                                                .of(DisableUserActionProviderFactory.ID)
+                                                .build()
+                                ).build())
+                .build())) {
+            assertThat(response.getStatus(), is(Status.BAD_REQUEST.getStatusCode()));
+            assertThat(response.readEntity(ErrorRepresentation.class).getErrorMessage(), equalTo("Action provider " + SetUserAttributeActionProviderFactory.ID + " does not support aggregated actions"));
+        }
     }
 
     @Test
