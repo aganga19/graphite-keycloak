@@ -980,8 +980,8 @@ public class JpaRealmProvider implements RealmProvider, ClientProvider, ClientSc
     }
 
     @Override
-    public ClientModel getClientByAttribute(RealmModel realm, String name, String value) {
-        List<ClientModel> clients = searchClientsByAttributes(realm, Map.of(name, value), 0, 2).toList();
+    public ClientModel getClientByAttributes(RealmModel realm, Map<String, String> attributes) {
+        List<ClientModel> clients = searchClientsByAttributes(realm, attributes, 0, 2).toList();
         return switch (clients.size()) {
             case 0 -> null;
             case 1 -> clients.get(0);
