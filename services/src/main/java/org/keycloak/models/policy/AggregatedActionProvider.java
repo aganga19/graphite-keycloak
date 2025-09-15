@@ -23,11 +23,7 @@ public class AggregatedActionProvider implements ResourceActionProvider {
 
     @Override
     public void run(List<String> userIds) {
-        ResourcePolicyManager manager = new ResourcePolicyManager(session);
-        List<ResourceActionProvider> actions = manager.getActionById(session, model.getId())
-                .getActions().stream()
-                .map(manager::getActionProvider)
-                .toList();
+        List<ResourceActionProvider> actions = getAssociatedActions();
 
         for (String userId : userIds) {
             for (ResourceActionProvider action : actions) {
@@ -43,5 +39,14 @@ public class AggregatedActionProvider implements ResourceActionProvider {
     @Override
     public boolean isRunnable() {
         return true;
+    }
+
+    private List<ResourceActionProvider> getAssociatedActions() {
+        ResourcePolicyManager manager = new ResourcePolicyManager(session);
+
+        return manager.getActionById(model.getId())
+                .getActions().stream()
+                .map(manager::getActionProvider)
+                .toList();
     }
 }

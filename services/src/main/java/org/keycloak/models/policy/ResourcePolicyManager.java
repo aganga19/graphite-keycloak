@@ -35,6 +35,7 @@ import org.keycloak.common.util.MultivaluedHashMap;
 import org.keycloak.component.ComponentFactory;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.ModelValidationException;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.policy.ResourcePolicyStateProvider.ScheduledAction;
 import org.keycloak.models.utils.KeycloakModelUtils;
@@ -107,16 +108,27 @@ public class ResourcePolicyManager {
 
     private ResourceAction addAction(String parentId, ResourceAction action) {
         RealmModel realm = getRealm();
-        ComponentModel policyModel = realm.getComponent(parentId);
+        ComponentModel parentModel = realm.getComponent(parentId);
+
+        if (parentModel == null) {
+            throw new ModelValidationException("Parent component not found: " + parentId);
+        }
+
         ComponentModel actionModel = new ComponentModel();
 
         actionModel.setId(action.getId());//need to keep stable UUIDs not to break a link in state table
-        actionModel.setParentId(policyModel.getId());
+        actionModel.setParentId(parentModel.getId());
         actionModel.setProviderId(action.getProviderId());
         actionModel.setProviderType(ResourceActionProvider.class.getName());
         actionModel.setConfig(action.getConfig());
 
-        return new ResourceAction(realm.addComponentModel(actionModel));
+        ResourceAction persisted = new ResourceAction(realm.addComponentModel(actionModel));
+
+        persisted.setActions(action.getActions());
+
+        validateAction(persisted);
+
+        return persisted;
     }
 
     public List<ResourcePolicy> getPolicies() {
@@ -143,7 +155,7 @@ public class ResourcePolicyManager {
         return action;
     }
 
-    public ResourceAction getActionById(KeycloakSession session, String id) {
+    public ResourceAction getActionById(String id) {
         RealmModel realm = session.getContext().getRealm();
         ComponentModel component = realm.getComponent(id);
 
@@ -365,5 +377,20 @@ public class ResourcePolicyManager {
         Objects.requireNonNull(type, "type");
         Objects.requireNonNull(type, "resourceId");
         return type.resolveResource(session, resourceId);
+    }
+
+    private void validateAction(ResourceAction persisted) throws ModelValidationException {
+        List<ResourceAction> aggregated = persisted.getActions();
+
+        if (!aggregated.isEmpty()) {
+            ResourceActionProvider provider = getActionProvider(persisted);
+
+            if (!(provider instanceof AggregatedActionProvider)) {
+                // for now, only AggregatedActionProvider supports having sub-actions but we might want to support
+                // in the future more actions from having sub-actions by querying the capability from the provider or via
+                // a marker interface
+                throw new ModelValidationException("Action provider " + persisted.getProviderId() + " does not support aggregated actions");
+            }
+        }
     }
 }
