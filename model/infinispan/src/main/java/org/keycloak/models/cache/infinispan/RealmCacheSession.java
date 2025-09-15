@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -61,7 +62,6 @@ import org.keycloak.models.cache.infinispan.entities.ClientScopeListQuery;
 import org.keycloak.models.cache.infinispan.entities.GroupListQuery;
 import org.keycloak.models.cache.infinispan.entities.GroupNameQuery;
 import org.keycloak.models.cache.infinispan.entities.RealmListQuery;
-import org.keycloak.models.cache.infinispan.entities.Revisioned;
 import org.keycloak.models.cache.infinispan.entities.RoleListQuery;
 import org.keycloak.models.cache.infinispan.entities.RoleByNameQuery;
 import org.keycloak.models.cache.infinispan.events.ClientAddedEvent;
@@ -1313,10 +1313,11 @@ public class RealmCacheSession implements CacheRealmProvider {
     }
 
     @Override
-    public ClientModel getClientByAttribute(RealmModel realm, String name, String value) {
-        List<CachedClient> clients = cache.searchWithPredicate(c -> value.equals(c.getAttributes().get(name)), CachedClient.class).limit(2).toList();
+    public ClientModel getClientByAttributes(RealmModel realm, Map<String, String> attributes) {
+        List<CachedClient> clients = cache.searchWithPredicate(new ClientAttributesPredicate(attributes), CachedClient.class)
+                .limit(2).toList();
         return switch (clients.size()) {
-            case 0 -> getClientDelegate().getClientByAttribute(realm, name, value);
+            case 0 -> getClientDelegate().getClientByAttributes(realm, attributes);
             case 1 -> getClientById(realm, clients.get(0).getId());
             default -> throw new ModelException("Multiple clients found with the same attribute name and value");
         };
@@ -1599,4 +1600,19 @@ public class RealmCacheSession implements CacheRealmProvider {
         listInvalidations.add(realm.getId());
         getGroupDelegate().preRemove(realm);
     }
+
+    private record ClientAttributesPredicate(Map<String, String> requiredAttributes) implements Predicate<CachedClient> {
+
+        @Override
+        public boolean test(CachedClient cachedClient) {
+            Map<String, String> attributes = cachedClient.getAttributes();
+            for (Map.Entry<String, String> r : requiredAttributes.entrySet()) {
+                if (!r.getValue().equals(attributes.get(r.getKey()))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
 }

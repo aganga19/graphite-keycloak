@@ -2,10 +2,8 @@ package org.keycloak.tests.admin.client;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.keycloak.admin.client.Keycloak;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.cache.infinispan.ClientAdapter;
-import org.keycloak.testframework.annotations.InjectAdminClient;
 import org.keycloak.testframework.annotations.InjectRealm;
 import org.keycloak.testframework.annotations.KeycloakIntegrationTest;
 import org.keycloak.testframework.realm.ManagedRealm;
@@ -17,6 +15,7 @@ import org.keycloak.testframework.remote.runonserver.InjectRunOnServer;
 import org.keycloak.testframework.remote.runonserver.RunOnServerClient;
 
 import java.io.Serializable;
+import java.util.Map;
 
 @KeycloakIntegrationTest
 public class ClientByAttributesTest {
@@ -27,13 +26,10 @@ public class ClientByAttributesTest {
     @InjectRunOnServer
     RunOnServerClient runOnServer;
 
-    @InjectAdminClient
-    Keycloak adminClient;
-
     @Test
     public void lookupByAttribute() {
         runOnServer.run(s -> {
-            ClientModel c = s.clients().getClientByAttribute(s.getContext().getRealm(), "jwt.credential.sub", "value1");
+            ClientModel c = s.clients().getClientByAttributes(s.getContext().getRealm(), Map.of("jwt.credential.issuer", "issuer1", "jwt.credential.sub", "value1"));
             Assertions.assertEquals("client1", c.getClientId());
         });
     }
@@ -42,7 +38,7 @@ public class ClientByAttributesTest {
     public void lookupByAttributeMultipleMatches() {
         runOnServer.run(s -> {
             try {
-                s.clients().getClientByAttribute(s.getContext().getRealm(), "jwt.credential.sub", "value2");
+                s.clients().getClientByAttributes(s.getContext().getRealm(), Map.of("jwt.credential.issuer", "issuer1", "jwt.credential.sub", "value2"));
                 Assertions.fail("Expected exception");
             } catch (Exception e) {
                 Assertions.assertEquals("Multiple clients found with the same attribute name and value", e.getMessage());
@@ -64,9 +60,10 @@ public class ClientByAttributesTest {
     public static class ClientByAttributesRealm implements RealmConfig {
         @Override
         public RealmConfigBuilder configure(RealmConfigBuilder realm) {
-            realm.addClient("client1").attribute("jwt.credential.sub", "value1");
-            realm.addClient("client2").attribute("jwt.credential.sub", "value2");
-            realm.addClient("client3").attribute("jwt.credential.sub", "value2");
+            realm.addClient("client1").attribute("jwt.credential.issuer", "issuer1").attribute("jwt.credential.sub", "value1");
+            realm.addClient("client4").attribute("jwt.credential.issuer", "issuer2").attribute("jwt.credential.sub", "value1");
+            realm.addClient("client2").attribute("jwt.credential.issuer", "issuer1").attribute("jwt.credential.sub", "value2");
+            realm.addClient("client3").attribute("jwt.credential.issuer", "issuer1").attribute("jwt.credential.sub", "value2");
             return realm;
         }
     }
@@ -76,7 +73,7 @@ public class ClientByAttributesTest {
         @Override
         public FetchOnServer getRunOnServer() {
             return s -> {
-                ClientModel client = s.clients().getClientByAttribute(s.getContext().getRealm(), "jwt.credential.sub", jwtCredentialSub);
+                ClientModel client = s.clients().getClientByAttributes(s.getContext().getRealm(), Map.of("jwt.credential.issuer", "issuer1", "jwt.credential.sub", jwtCredentialSub));
                 return ((ClientAdapter) client).getCacheTimestamp();
             };
         }
