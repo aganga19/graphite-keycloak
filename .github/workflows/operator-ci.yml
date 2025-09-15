@@ -71,7 +71,7 @@ jobs:
           start args: '--addons=ingress'
       - name: Download keycloak distribution
         id: download-keycloak-dist
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v5
         with:
           name: keycloak-distribution
           path: quarkus/container
@@ -116,7 +116,7 @@ jobs:
           start args: '--addons=ingress'
       - name: Download keycloak distribution
         id: download-keycloak-dist
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v5
         with:
           name: keycloak-distribution
           path: quarkus/container
@@ -170,7 +170,7 @@ jobs:
         run: ./scripts/install-olm.sh
       - name: Download keycloak distribution
         id: download-keycloak-dist
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v5
         with:
           name: keycloak-distribution
           path: quarkus/container

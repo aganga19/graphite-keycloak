@@ -71,7 +71,7 @@ jobs:
         run: rm -rf ~/.m2/repository/org/keycloak >/dev/null || true
       - name: Download built keycloak
         id: download-keycloak
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v5
         with:
           path: ~/.m2/repository/org/keycloak/
           name: keycloak-artifacts.zip
@@ -117,7 +117,7 @@ jobs:
         run: rm -rf ~/.m2/repository/org/keycloak >/dev/null || true
       - name: Download built keycloak
         id: download-keycloak
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v5
         with:
           path: ~/.m2/repository/org/keycloak/
           name: keycloak-artifacts.zip
@@ -161,7 +161,7 @@ jobs:
         run: rm -rf ~/.m2/repository/org/keycloak >/dev/null || true
       - name: Download built keycloak
         id: download-keycloak
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v5
         with:
           path: ~/.m2/repository/org/keycloak/
           name: keycloak-artifacts.zip
@@ -218,7 +218,7 @@ jobs:
       - name: Download built keycloak
         if: ${{ github.event_name != 'pull_request' || matrix.server != 'quarkus-map-hot-rod' || env.GIT_HOTROD_RELEVANT_DIFF != 0 }}
         id: download-keycloak
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v5
         with:
           path: ~/.m2/repository/org/keycloak/
           name: keycloak-artifacts.zip
@@ -297,7 +297,7 @@ jobs:
 
       - name: Download built keycloak
         id: download-keycloak
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v5
         with:
           path: ~/.m2/repository/org/keycloak/
           name: keycloak-artifacts.zip
@@ -395,7 +395,7 @@ jobs:
       - name: Download built keycloak
         if: ${{ github.event_name != 'pull_request' || env.GIT_MAP_JPA_RELEVANT_DIFF != 0 }}
         id: download-keycloak
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v5
         with:
           path: ~/.m2/repository/org/keycloak/
           name: keycloak-artifacts.zip
@@ -464,7 +464,7 @@ jobs:
 
       - name: Download built keycloak
         id: download-keycloak
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v5
         with:
           path: ~/.m2/repository/org/keycloak/
           name: keycloak-artifacts.zip
@@ -522,7 +522,7 @@ jobs:
 
       - name: Download built keycloak
         id: download-keycloak
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v5
         with:
           path: ~/.m2/repository/org/keycloak/
           name: keycloak-artifacts.zip
