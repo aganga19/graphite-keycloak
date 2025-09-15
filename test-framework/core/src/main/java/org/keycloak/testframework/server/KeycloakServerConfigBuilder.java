@@ -5,7 +5,6 @@ import io.quarkus.maven.dependency.DependencyBuilder;
 import io.smallrye.config.SmallRyeConfig;
 import org.eclipse.microprofile.config.spi.ConfigSource;
 import org.keycloak.common.Profile;
-import org.keycloak.common.Profile.Feature;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -29,6 +28,7 @@ public class KeycloakServerConfigBuilder {
     private final LogBuilder log = new LogBuilder();
     private final Set<Dependency> dependencies = new HashSet<>();
     private final Set<Path> configFiles = new HashSet<>();
+    private boolean tlsEnabled = false;
 
     private KeycloakServerConfigBuilder(String command) {
         this.command = command;
@@ -80,6 +80,16 @@ public class KeycloakServerConfigBuilder {
         dependencies.add(new DependencyBuilder().setGroupId(groupId).setArtifactId(artifactId).build());
         return this;
     }
+
+    public KeycloakServerConfigBuilder tlsEnabled(boolean enabled) {
+        tlsEnabled = enabled;
+        return this;
+    }
+
+    public boolean tlsEnabled() {
+        return tlsEnabled ;
+    }
+
 
     public KeycloakServerConfigBuilder cacheConfigFile(String resourcePath) {
         try {

@@ -14,7 +14,7 @@ public class ClusteredKeycloakServerSupplier extends AbstractKeycloakServerSuppl
     String images = ClusteredKeycloakServer.SNAPSHOT_IMAGE;
 
     @Override
-    public KeycloakServer getServer() {
+    public KeycloakServer getServer(String keystore) {
         return new ClusteredKeycloakServer(numContainers, images);
     }
 

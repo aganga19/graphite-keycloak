@@ -7,8 +7,8 @@ public class EmbeddedKeycloakServerSupplier extends AbstractKeycloakServerSuppli
     private static final Logger LOGGER = Logger.getLogger(EmbeddedKeycloakServerSupplier.class);
 
     @Override
-    public KeycloakServer getServer() {
-        return new EmbeddedKeycloakServer();
+    public KeycloakServer getServer(String serverKeystore) {
+        return new EmbeddedKeycloakServer(serverKeystore);
     }
 
     @Override

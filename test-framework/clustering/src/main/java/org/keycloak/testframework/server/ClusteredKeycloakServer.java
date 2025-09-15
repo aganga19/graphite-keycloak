@@ -149,6 +149,11 @@ public class ClusteredKeycloakServer implements KeycloakServer {
         return getManagementBaseUrl(0);
     }
 
+    @Override
+    public boolean isTlsEnabled() {
+        return false;
+    }
+
     public int getBasePort(int index) {
         return containers[index].getMappedPort(REQUEST_PORT);
     }

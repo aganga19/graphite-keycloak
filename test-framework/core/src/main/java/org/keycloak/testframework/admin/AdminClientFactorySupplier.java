@@ -11,7 +11,7 @@ public class AdminClientFactorySupplier implements Supplier<AdminClientFactory, 
     @Override
     public AdminClientFactory getValue(InstanceContext<AdminClientFactory, InjectAdminClientFactory> instanceContext) {
         KeycloakServer server = instanceContext.getDependency(KeycloakServer.class);
-        return new AdminClientFactory(server.getBaseUrl());
+        return new AdminClientFactory(server.getBaseUrl(), server.isTlsEnabled());
     }
 
     @Override

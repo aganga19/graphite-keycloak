@@ -1,14 +1,20 @@
 package org.keycloak.testframework.http;
 
 import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.keycloak.testframework.annotations.InjectHttpClient;
 import org.keycloak.testframework.injection.InstanceContext;
 import org.keycloak.testframework.injection.LifeCycle;
 import org.keycloak.testframework.injection.RequestedInstance;
 import org.keycloak.testframework.injection.Supplier;
+import org.keycloak.testframework.server.KeycloakServer;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 
 public class HttpClientSupplier implements Supplier<HttpClient, InjectHttpClient> {
@@ -16,6 +22,21 @@ public class HttpClientSupplier implements Supplier<HttpClient, InjectHttpClient
     @Override
     public HttpClient getValue(InstanceContext<HttpClient, InjectHttpClient> instanceContext) {
         HttpClientBuilder builder = HttpClientBuilder.create();
+
+        KeycloakServer server = instanceContext.getDependency(KeycloakServer.class);
+        if (server.isTlsEnabled()) {
+            try {
+                SSLContext sslContext = SSLContextBuilder.create()
+                        .loadTrustMaterial(null, new TrustAllStrategy())
+                        .build();
+
+                SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(
+                        sslContext,
+                        NoopHostnameVerifier.INSTANCE);
+
+                builder.setSSLSocketFactory(sslSocketFactory);
+            } catch (Exception ignored) {}
+        }
 
         if (!instanceContext.getAnnotation().followRedirects()) {
             builder.disableRedirectHandling();
