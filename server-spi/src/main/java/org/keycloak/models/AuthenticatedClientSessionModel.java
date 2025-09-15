@@ -137,6 +137,6 @@ public interface AuthenticatedClientSessionModel extends CommonClientSessionMode
                 removeNote(note);
             }
         }
-        getNotes().put(AuthenticatedClientSessionModel.STARTED_AT_NOTE, String.valueOf(getTimestamp()));
+        setNote(AuthenticatedClientSessionModel.STARTED_AT_NOTE, String.valueOf(getTimestamp()));
     }
 }

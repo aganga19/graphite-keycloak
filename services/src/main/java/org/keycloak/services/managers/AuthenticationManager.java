@@ -1727,7 +1727,7 @@ public class AuthenticationManager {
         Map<String, AuthenticatedClientSessionModel> clientSessions = userSession.getAuthenticatedClientSessions();
 
         return clientSessions.values().stream().filter(c -> c.getClient().equals(client))
-                .map((c) -> c.getNotes().get(OIDCLoginProtocol.SCOPE_PARAM))
+                .map((c) -> c.getNote(OIDCLoginProtocol.SCOPE_PARAM))
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
