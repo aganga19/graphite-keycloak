@@ -209,7 +209,7 @@ jobs:
 
       - name: Cache Maven packages
         if: ${{ github.event_name != 'pull_request' || matrix.server != 'quarkus-map-hot-rod' || env.GIT_HOTROD_RELEVANT_DIFF != 0 }}
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: cache-2-${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -289,7 +289,7 @@ jobs:
           fetch-depth: 2
 
       - name: Cache Maven packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: cache-2-${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -386,7 +386,7 @@ jobs:
 
       - name: Cache Maven packages
         if: ${{ github.event_name != 'pull_request' || env.GIT_MAP_JPA_RELEVANT_DIFF != 0 }}
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: cache-2-${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
