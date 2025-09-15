@@ -77,21 +77,17 @@ export const Credentials = ({ client, save, refresh }: CredentialsProps) => {
   );
 
   const { componentTypes } = useServerInfo();
-  const providerProperties = useMemo(
-    () =>
-      componentTypes?.["org.keycloak.authentication.ClientAuthenticator"]?.find(
-        (p) => p.id === clientAuthenticatorType,
-      )?.clientProperties,
-    [clientAuthenticatorType, componentTypes],
-  );
 
-  const isProviderConfigurable = useMemo(
-    () =>
-      componentTypes?.["org.keycloak.authentication.ClientAuthenticator"]?.find(
-        (p) => p.id === clientAuthenticatorType,
-      )?.configurablePerClient,
-    [clientAuthenticatorType, componentTypes],
-  );
+  const { providerProperties, isProviderConfigurable } = useMemo(() => {
+    const provider = componentTypes?.[
+      "org.keycloak.authentication.ClientAuthenticator"
+    ]?.find((p) => p.id === clientAuthenticatorType);
+
+    return {
+      providerProperties: provider?.clientProperties,
+      isProviderConfigurable: provider?.configurablePerClient,
+    };
+  }, [clientAuthenticatorType, componentTypes]);
 
   useFetch(
     () =>
